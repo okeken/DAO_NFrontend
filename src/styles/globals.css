@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #FAFAFF !important;
+  font-family:  "Inter", sans-serif;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline {
+  border: 1px solid #EF4444 !important;
+}
+
+.css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root {
+  border-radius: 12px !important;
+}
+
+.css-nxo287-MuiInputBase-input-MuiOutlinedInput-input {
+  padding: 13px 16px 13.5px !important;
+}
+
+.css-cveggr-MuiListItemIcon-root {
+  min-width: 24px !important;
+}
