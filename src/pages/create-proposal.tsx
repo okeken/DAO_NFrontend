@@ -25,7 +25,6 @@ const CreateProposal = () => {
     isLoading: createProposalLoading,
     write: createNewProposal,
   } = useContractWrite({
-    mode: "recklesslyUnprepared",
     address: GOVERNANCE_ADDRESS,
     abi: Governance,
     functionName: "createProposal",
@@ -57,7 +56,7 @@ const CreateProposal = () => {
 
   return (
     <PageLayout>
-      <div className="mt-14 md:mt-24 h-[calc(100vh-12.6rem)] max-w-[95%] md:max-w-[500px] text-[#3F3F46] mx-auto">
+      <div className="mt-20 md:mt-24 h-[calc(100vh-12.6rem)] w-[90%] md:max-w-[500px] text-[#3F3F46] mx-auto">
         <div className="border border-[#EF4444] px-6 py-12 rounded-[8px] bg-white">
           <h2 className="uppercase text-xl font-semibold mb-4 text-[#18181B]">Create Proposal</h2>
 
@@ -78,12 +77,36 @@ const CreateProposal = () => {
               <div className="text-[#3F3F46] mb-0.5">Deadline</div>
               <div className="flex">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker
+                  {/* <DateTimePicker
                     className="w-full flex-1 bg-transparent font-outfit text-sm text-[#8C93A3]"
                     value={proposalEndTime}
                     onChange={(e: any) => setProposalEndTime(e)}
                     disablePast
                     renderInput={(params: any) => <TextField {...params} />}
+                  /> */}
+                  {/* <TextField
+                    className="w-[full] flex-1 bg-transparent font-outfit text-sm text-[#8C93A3]"
+                    value={proposalEndTime}
+                    onChange={(e: any) => setProposalEndTime(e)}
+                    variant="outlined"
+                    InputProps={{
+                      readOnly: true,
+                      endAdornment: (
+                        <DateTimePicker
+                          value={proposalEndTime}
+                          className="min-w-[450px] bg-transparent font-outfit text-sm text-[#8C93A3]"
+                          onChange={(e: any) => setProposalEndTime(e)}
+                          disablePast
+                        />
+                      ),
+                    }}
+                  /> */}
+
+                  <DateTimePicker
+                    value={proposalEndTime}
+                    className="w-full bg-transparent font-outfit text-sm text-[#70707B] bg-white border border-[#B0BEC5] rounded-[12px] py-3 px-4 focus:outline-none focus:border-[#EF4444] "
+                    onChange={(e: any) => setProposalEndTime(e)}
+                    disablePast
                   />
                 </LocalizationProvider>
               </div>

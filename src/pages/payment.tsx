@@ -19,7 +19,6 @@ const Payment = () => {
         isLoading: payInCryptoLoading,
         write: payInCrypto,
     } = useContractWrite({
-        mode: "recklesslyUnprepared",
         address: USDT_ADDRESS,
         abi: Payment_Abi,
         functionName: "transfer",
@@ -50,8 +49,9 @@ const Payment = () => {
 
     return (
         <PageLayout>
-            <div className="mt-14 md:mt-24 h-[calc(100vh-10rem)] max-w-[95%] lg:max-w-[75%] xl:max-w-[65%] mx-auto">
-                <div className="w-[650px] mx-auto px-5 md:px-12 pt-10 pb-16 border rounded-[16px] border-[#EF4444]">
+            <div className="flex justify-center items-center h-[calc(100vh-6.6rem)]">
+                <div className="border border-[#EF4444] text-[#3F3F46] w-[90%] md:max-w-[500px] mx-auto px-6 py-9 rounded-[8px]">
+
                     <div className="flex justify-center mb-6">
                         <div className="w-[250px] grid grid-cols-2 h-12 bg-[#fff] overflow-hidden mb-8 rounded-[24px]">
                             {["Pay in crypto", "Pay in fiat"].map((title, i) => (

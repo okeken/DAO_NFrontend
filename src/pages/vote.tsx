@@ -39,7 +39,7 @@ const Vote = () => {
         functionName: "symbol",
     });
 
-    const balance = balanceOf && ethers.utils.formatUnits(balanceOf, 'ether');
+    const balance = balanceOf && ethers.utils.formatUnits(balanceOf as any, 'ether');
 
     const { data: proposals } = useContractRead({
         address: GOVERNANCE_ADDRESS,
@@ -67,7 +67,6 @@ const Vote = () => {
         isLoading: approveLoading,
         write: approve,
     } = useContractWrite({
-        mode: "recklesslyUnprepared",
         address: DAOTOKEN_ADDRESS,
         abi: DAOToken,
         functionName: "approve",
@@ -97,7 +96,6 @@ const Vote = () => {
         isLoading: voteLoading,
         write: vote,
     } = useContractWrite({
-        mode: "recklesslyUnprepared",
         address: GOVERNANCE_ADDRESS,
         abi: Governance,
         functionName: "voteProposal",
@@ -132,7 +130,6 @@ const Vote = () => {
         isLoading: setMaxVoteWeightLoading,
         write: setMaxVoteWeight,
     } = useContractWrite({
-        mode: "recklesslyUnprepared",
         address: GOVERNANCE_ADDRESS,
         abi: Governance,
         functionName: "setMaxVoteWeight",
