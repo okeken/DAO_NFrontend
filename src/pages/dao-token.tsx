@@ -25,17 +25,18 @@ export default function MintTokens() {
     abi: DAOtoken_Abi,
     functionName: "mint",
     onError(error: any) {
-      toast.error(`Failed! ${error.reason}`);
+      toast.error(`Failed! ${error}`);
     },
   });
 
   const { isLoading: mintTokenWaitLoading } = useWaitForTransaction({
     hash: mintTokenData?.hash,
     onSuccess(data) {
-      toast.success(`Certificate minted successfully!`);
+      toast.success(`Token minted successfully!`);
     },
     onError(error: any) {
-      toast.error(`Failed! ${error.reason}`);
+      toast.error(`Failed! ${error}`);
+      
     },
   });
 

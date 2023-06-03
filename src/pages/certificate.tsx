@@ -25,7 +25,9 @@ export default function Certificate() {
     abi: Certificate_Abi,
     functionName: "mintCertificate",
     onError(error: any) {
-      toast.error(`Failed! ${error.reason}`);
+      if(error.message.toLocaleLowerCase().includes('already minted')) {
+        toast.error(`Failed! Already minted certificate`);
+      }
     },
   });
   const { isLoading: mintCertificateWaitLoading } = useWaitForTransaction({
@@ -34,7 +36,9 @@ export default function Certificate() {
       toast.success(`Certificate minted successfully!`);
     },
     onError(error: any) {
-      toast.error(`Failed! ${error.reason}`);
+      if(error.message.toLocaleLowerCase().includes('already minted')) {
+        toast.error(`Failed! Already minted certificate`);
+      }
     },
   });
 

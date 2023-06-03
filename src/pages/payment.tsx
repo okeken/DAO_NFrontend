@@ -82,8 +82,11 @@ const Payment = () => {
                         closePaymentModal();
                         setEmail("")
                         setAmount("");
+                        setName("");
+                        setPhone("");
+                        router.push("/")
                         // setMessage(response.data.message);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        // window.scrollTo({ top: 0, behavior: "smooth" });
                     }, 2000);
                 },
                 onClose: () => { },
@@ -124,7 +127,7 @@ const Payment = () => {
                                 <input
                                     required
                                     type="text"
-                                    placeholder="Paste Address here"
+                                    placeholder="Enter amount"
                                     className={`${amount ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
                                     value={amount}
                                     onChange={(e: any) => setAmount(e.target.value)}
@@ -147,7 +150,7 @@ const Payment = () => {
                                 className="w-full"
                             >
                                 <div className="mb-[16px]">
-                                    <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Email</h1>
+                                    <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter name</h1>
                                     <input
                                         required
                                         type="text"

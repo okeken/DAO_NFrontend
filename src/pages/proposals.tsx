@@ -1,14 +1,9 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
-import Link from 'next/link';
-import { Button, ConnectionButton } from '@/components/core';
-import { Footer, Navbar } from '@/components/navigation';
 import { PageLayout } from '@/layout';
 import { ProposalTable } from '@/components/tables';
 import { useAccount, useContractRead, useContractWrite, useWaitForTransaction } from 'wagmi';
 import { DAOTOKEN_ADDRESS, GOVERNANCE_ADDRESS } from '@/config';
-// import { BigNumberish } from "ethers"
-import { BigNumber } from "bignumber.js";
 
 import Governance from "../utils/abi/Governance.json"
 import DAOToken from "../utils/abi/DAOtoken.json"
@@ -47,6 +42,9 @@ export default function Certificate() {
     abi: Governance,
     functionName: "owner",
   });
+
+  console.log("proposals: ", proposals);
+  
 
   const {
     data: cancelProposalData,
