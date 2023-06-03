@@ -8,6 +8,10 @@ import Payment_Abi from "../utils/abi/Payment.json"
 import { ethers } from 'ethers';
 import { Button } from '@/components/core';
 import { ScaleLoader } from 'react-spinners';
+import usePayment from '../hooks/usePayment'
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/material.css'
+
 
 const Payment = () => {
     const router = useRouter();
@@ -47,9 +51,55 @@ const Payment = () => {
         payInCrypto?.();
     };
 
+    const [name, setName] = useState<string>("")
+    const [email, setEmail] = useState<string>("")
+    const [phone, setPhone] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false)
+    // const [loading, setE] = useState<boolean>(false)
+
+
+    const { card: handlePayment, cardClose: closePaymentModal } = usePayment({
+        amount: Number(amount),
+        customer: {
+            email: email,
+            phone_number: phone,
+            name: name,
+        },
+    });
+
+    const handleFiatSubmit = (e: SyntheticEvent) => {
+        e.preventDefault();
+
+        console.log({ name, phone, email, amount });
+        // return;
+
+        setLoading(true);
+
+        try {
+            handlePayment({
+                callback: (resp) => {
+                    setTimeout(() => {
+                        closePaymentModal();
+                        setEmail("")
+                        setAmount("");
+                        // setMessage(response.data.message);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                    }, 2000);
+                },
+                onClose: () => { },
+            });
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+            setLoading(false);
+        }
+    };
+
+
+
     return (
         <PageLayout>
-            <div className="flex justify-center items-center h-[calc(100vh-6.6rem)]">
+            <div className="flex justify-center my-16 items-center h-[calc(100vh-6.6rem)]">
                 <div className="border border-[#EF4444] text-[#3F3F46] w-[90%] md:max-w-[500px] mx-auto px-6 py-9 rounded-[8px]">
 
                     <div className="flex justify-center mb-6">
@@ -92,7 +142,71 @@ const Payment = () => {
                         </form>
                     ) : (
                         <div className="flex justify-center">
-                            <div className="my-10 font-semibold">COMING SOON!!!</div>
+                            <form
+                                onSubmit={handleFiatSubmit}
+                                className="w-full"
+                            >
+                                <div className="mb-[16px]">
+                                    <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Email</h1>
+                                    <input
+                                        required
+                                        type="text"
+                                        placeholder="Enter name"
+                                        className={`${name ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
+                                        value={name}
+                                        onChange={(e: any) => setName(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="mb-[16px]">
+                                    <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Email</h1>
+                                    <input
+                                        required
+                                        type="email"
+                                        placeholder="Enter email"
+                                        className={`${email ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
+                                        value={email}
+                                        onChange={(e: any) => setEmail(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="mb-[24px]">
+                                    <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Amount</h1>
+                                    <input
+                                        required
+                                        type="text"
+                                        placeholder="Enter amount"
+                                        className={`${amount ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
+                                        value={amount}
+                                        onChange={(e: any) => setAmount(e.target.value)}
+                                    />
+                                </div>
+
+
+                                <div className="mb-[10px]">
+                                    {/* <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Email</h1> */}
+                                    <div className="w-full">
+                                        <PhoneInput
+                                            country={'ng'}
+                                            value={phone}
+                                            // className=""
+                                            onChange={phone => setPhone(phone)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <Button
+                                    className={"bg-[#EF4444] text-white text-sm font-medium w-full h-11 mt-10 rounded-[8px]"}
+                                    type="submit"
+                                    disabled={loading}
+                                >
+                                    {/* <ClipLoader size={28} color="#fff" /> */}
+
+                                    {loading
+                                        ? <ScaleLoader color='white' />
+                                        : "Pay"}
+                                </Button>
+                            </form>
                         </div>
                     )}
                 </div>
