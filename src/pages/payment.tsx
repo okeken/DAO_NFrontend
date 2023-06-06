@@ -1,7 +1,7 @@
 import { PageLayout } from '@/layout'
 import { useRouter } from 'next/router';
-import React, { SyntheticEvent, useState } from 'react'
-import { useContractWrite, useWaitForTransaction } from 'wagmi';
+import React, { SyntheticEvent, useEffect, useState } from 'react'
+import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi';
 import { toast } from "react-toastify";
 import { MULTISIG, USDT_ADDRESS } from '@/config';
 import Payment_Abi from "../utils/abi/Payment.json"
@@ -10,13 +10,25 @@ import { Button } from '@/components/core';
 import { ScaleLoader } from 'react-spinners';
 import usePayment from '../hooks/usePayment'
 import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/material.css'
+import 'react-phone-input-2/lib/plain.css'
+import PaymentSuccessModal from '@/components/payment/PaymentSuccessModal';
+import axios from 'axios';
 
 
 const Payment = () => {
     const router = useRouter();
+    const { address } = useAccount();
     const [amount, setAmount] = useState<string>('');
     const [activeTab, setActiveTab] = useState<string>("Pay in Crypto");
+
+
+    const [name, setName] = useState<string>("")
+    const [email, setEmail] = useState<string>("")
+    const [phone, setPhone] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false)
+    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [activePercentage, setActivePercentage] = useState("100")
+
 
     const {
         data: payInCryptoData,
@@ -36,9 +48,25 @@ const Payment = () => {
         useWaitForTransaction({
             hash: payInCryptoData?.hash,
             onSuccess(data) {
-                setAmount('')
-                router.push("/");
-                toast.success("Payment Successful!");
+                setEmail("")
+                setAmount("");
+                setName("");
+                setPhone("");
+
+                if (data) {
+                    setIsOpen(true);
+
+                }
+
+                // const res = await axios.post('http://localhost:3000/user', {name, email, phone, address, amount })
+
+                // console.log("response: ", res);
+
+                // if(res.status) {
+                //     setIsOpen(true);
+                // }
+                // router.push("/");
+                // toast.success("Payment Successful!");
             },
             onError(error: any) {
                 toast.error(`Failed! ${error.reason}`);
@@ -48,13 +76,14 @@ const Payment = () => {
     const handleCryptoSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
 
+        if (!address) {
+            toast.error("Connect your wallet!")
+            return;
+        }
+
         payInCrypto?.();
     };
 
-    const [name, setName] = useState<string>("")
-    const [email, setEmail] = useState<string>("")
-    const [phone, setPhone] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false)
     // const [loading, setE] = useState<boolean>(false)
 
 
@@ -70,8 +99,10 @@ const Payment = () => {
     const handleFiatSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
 
-        console.log({ name, phone, email, amount });
-        // return;
+        if (!address) {
+            toast.error("Connect your wallet!");
+            return;
+        }
 
         setLoading(true);
 
@@ -84,7 +115,7 @@ const Payment = () => {
                         setAmount("");
                         setName("");
                         setPhone("");
-                        router.push("/")
+                        setIsOpen(true);
                         // setMessage(response.data.message);
                         // window.scrollTo({ top: 0, behavior: "smooth" });
                     }, 2000);
@@ -99,9 +130,28 @@ const Payment = () => {
     };
 
 
+    useEffect(() => {
+        if (activePercentage == '25') {
+            setAmount('250')
+        } else if (activePercentage == '50') {
+            setAmount('500')
+        } else if (activePercentage == '75') {
+            setAmount('750')
+        } else if (activePercentage == '100') {
+            setAmount('1000')
+        } else {
+            setAmount('')
+        }
+    }, [activePercentage])
+
+
 
     return (
         <PageLayout>
+            <PaymentSuccessModal
+                isOpen={isOpen}
+                togglePaymentSuccessModal={() => setIsOpen(!isOpen)}
+            />
             <div className="flex justify-center my-16 items-center h-[calc(100vh-6.6rem)]">
                 <div className="border border-[#EF4444] text-[#3F3F46] w-[90%] md:max-w-[500px] mx-auto px-6 py-9 rounded-[8px]">
 
@@ -122,16 +172,72 @@ const Payment = () => {
                             onSubmit={handleCryptoSubmit}
                             className="w-full"
                         >
-                            <div className="mb-[6px]">
-                                <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[8px]">Enter Amount</h1>
+                            <div className="mb-[16px]">
+                                <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter name</h1>
                                 <input
                                     required
                                     type="text"
-                                    placeholder="Enter amount"
-                                    className={`${amount ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
-                                    value={amount}
-                                    onChange={(e: any) => setAmount(e.target.value)}
+                                    placeholder="Enter name"
+                                    className={`${name ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
+                                    value={name}
+                                    onChange={(e: any) => setName(e.target.value)}
                                 />
+                            </div>
+
+                            <div className="mb-[16px]">
+                                <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Email</h1>
+                                <input
+                                    required
+                                    type="email"
+                                    placeholder="Enter email"
+                                    className={`${email ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
+                                    value={email}
+                                    onChange={(e: any) => setEmail(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="mb-[12px]">
+                                <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Amount</h1>
+                                <div className="relative">
+
+                                    <div className="absolute bg-[#EFEFEF] border border-[#EF4444] py-2.5 text-lg text-[#70707B] px-5 rounded-tl-[24px]  rounded-bl-[24px]">
+                                        $
+                                    </div>
+                                    <input
+                                        required
+                                        type="text"
+                                        placeholder="Enter amount"
+                                        className={`${amount ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} pl-16 focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
+                                        value={amount}
+                                        onChange={(e: any) => setAmount(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="rounded-md flex h-[46px] bg-[#FAFAFA] gap-x-4 p-1 mb-6">
+                                {
+                                    ['25', '50', '75', '100'].map((am, _i) => (
+                                        <PercentageTabButton
+                                            title={am}
+                                            key={_i}
+                                            activePercentage={activePercentage}
+                                            setActivePercentage={setActivePercentage}
+                                        />
+                                    ))
+                                }
+                            </div>
+
+
+                            <div className="mb-[10px]">
+                                <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Phone Number</h1>
+                                <div className="w-full">
+                                    <PhoneInput
+                                        country={'ng'}
+                                        value={phone}
+                                        // className=""
+                                        onChange={phone => setPhone(phone)}
+                                    />
+                                </div>
                             </div>
 
                             <Button
@@ -173,21 +279,40 @@ const Payment = () => {
                                     />
                                 </div>
 
-                                <div className="mb-[24px]">
+                                <div className="mb-[12px]">
                                     <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Amount</h1>
-                                    <input
-                                        required
-                                        type="text"
-                                        placeholder="Enter amount"
-                                        className={`${amount ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
-                                        value={amount}
-                                        onChange={(e: any) => setAmount(e.target.value)}
-                                    />
+                                    <div className="relative">
+
+                                        <div className="absolute bg-[#EFEFEF] border border-[#EF4444] py-2.5 text-lg text-[#70707B] px-5 rounded-tl-[24px]  rounded-bl-[24px]">
+                                            $
+                                        </div>
+                                        <input
+                                            required
+                                            type="text"
+                                            placeholder="Enter amount"
+                                            className={`${amount ? "border-[#EF4444] bg-white" : "bg-[#FAFAFA]"} pl-16 focus:outline-none rounded-[24px] border bg-[#F8F7FF] w-full px-[14px] py-[12px] text-[#70707B] text-[16px] leading-[24px]`}
+                                            value={amount}
+                                            onChange={(e: any) => setAmount(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="rounded-md flex h-[46px] bg-[#FAFAFA] gap-x-4 p-1 mb-6">
+                                    {
+                                        ['25', '50', '75', '100'].map((am, _i) => (
+                                            <PercentageTabButton
+                                                title={am}
+                                                key={_i}
+                                                activePercentage={activePercentage}
+                                                setActivePercentage={setActivePercentage}
+                                            />
+                                        ))
+                                    }
                                 </div>
 
 
                                 <div className="mb-[10px]">
-                                    {/* <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Email</h1> */}
+                                    <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Phobe Number</h1>
                                     <div className="w-full">
                                         <PhoneInput
                                             country={'ng'}
@@ -207,7 +332,7 @@ const Payment = () => {
 
                                     {loading
                                         ? <ScaleLoader color='white' />
-                                        : "Pay"}
+                                        : "Proceed"}
                                 </Button>
                             </form>
                         </div>
@@ -250,5 +375,34 @@ const TabButton = ({
                 {title}
             </h1>
         </button>
+    );
+};
+
+
+const PercentageTabButton = (props: any) => {
+    console.log(props);
+
+
+
+    const isActive = props.title?.toLowerCase() === props.activePercentage.toLowerCase();
+
+    // 
+    return (
+        <div
+            // style={isActiveDiv(props?.title)}
+            onClick={() => props?.setActivePercentage(props?.title)}
+            className={`cursor-pointer px-6 h-full flex justify-center items-center w-full transition-all delay-75 ease-in-out rounded-[12px] border ${isActive ? " bg-[#EF4444]" : "bg-[#F0F0F0] border-[#FCE7F3]"}`}
+
+        >
+            <h1
+                //   style={isActiveH1(props?.title)}
+                className={`font-medium m-0 text-sm whitespace-nowrap transition-colors delay-75 ease-in-out`}
+                style={{
+                    color: isActive ? "#FFFFFF" : "#70707B",
+                }}
+            >
+                {props?.title}%
+            </h1>
+        </div>
     );
 };
