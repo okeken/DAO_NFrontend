@@ -13,6 +13,9 @@ import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/plain.css'
 import PaymentSuccessModal from '@/components/payment/PaymentSuccessModal';
 import axios from 'axios';
+import SuccessToastIcon from '@/icons/SuccessToastIcon';
+import WarningIcon from '@/icons/WarningIcon';
+import { closePaymentModal, useFlutterwave } from 'flutterwave-react-v3';
 
 
 const Payment = () => {
@@ -40,36 +43,37 @@ const Payment = () => {
         functionName: "transfer",
         args: [MULTISIG, ethers.utils.parseEther(amount.toString() || "0")],
         onError(error: any) {
-            toast.error(`Failed! ${error.reason}`);
+            toast.error(`Failed! ${error.reason}`, {
+                icon: <WarningIcon />,
+            });
         },
     });
 
     const { isLoading: payInCryptoWaitLoading } =
         useWaitForTransaction({
             hash: payInCryptoData?.hash,
-            onSuccess(data) {
-                setEmail("")
-                setAmount("");
-                setName("");
-                setPhone("");
+            async onSuccess(dt) {
+                console.log("response.dttt: ", dt);
 
-                if (data) {
+                const { data } = await axios.post('http://13.53.199.120/user', { fullName: name, email, phoneNumber: phone, walletAddress: address, amount: Number(amount), txnId: dt.transactionHash })
+
+                if (data.success) {
                     setIsOpen(true);
+                    setEmail("")
+                    setAmount("");
+                    setName("");
+                    setPhone("");
+                } else {
+                    console.log("There is an error!: ", data.message);
 
                 }
-
-                // const res = await axios.post('http://localhost:3000/user', {name, email, phone, address, amount })
-
-                // console.log("response: ", res);
-
-                // if(res.status) {
-                //     setIsOpen(true);
-                // }
-                // router.push("/");
-                // toast.success("Payment Successful!");
             },
             onError(error: any) {
-                toast.error(`Failed! ${error.reason}`);
+                console.log(error.message);
+
+                toast.error(`Failed! ${error.reason}`, {
+                    icon: <WarningIcon />,
+                });
             },
         });
 
@@ -77,58 +81,93 @@ const Payment = () => {
         e.preventDefault();
 
         if (!address) {
-            toast.error("Connect your wallet!")
+            toast.error("Connect your wallet!", {
+                icon: <WarningIcon />,
+            });
             return;
         }
-
         payInCrypto?.();
     };
 
-    // const [loading, setE] = useState<boolean>(false)
-
-
-    const { card: handlePayment, cardClose: closePaymentModal } = usePayment({
+    const config = {
+        public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY as string,
+        tx_ref: String(Date.now()),
         amount: Number(amount),
+        currency: 'USD',
+        payment_options: 'card,mobilemoney,ussd',
         customer: {
             email: email,
             phone_number: phone,
             name: name,
         },
-    });
+        customizations: {
+            title: `Web3Bridge DAO`,
+            description: `Web3Bridge DAO`,
+            logo: "https://www.web3bridge.com/web3bridge-logo.png",
+        },
+    };
+
+    const handleFlutterPayment = useFlutterwave(config);
 
     const handleFiatSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
 
         if (!address) {
-            toast.error("Connect your wallet!");
+            toast.error("Connect your wallet!", {
+                icon: <WarningIcon />,
+            });
             return;
         }
 
         setLoading(true);
-
         try {
-            handlePayment({
-                callback: (resp) => {
-                    setTimeout(() => {
-                        closePaymentModal();
-                        setEmail("")
-                        setAmount("");
-                        setName("");
-                        setPhone("");
-                        setIsOpen(true);
-                        // setMessage(response.data.message);
-                        // window.scrollTo({ top: 0, behavior: "smooth" });
-                    }, 2000);
+            let amt = Number(amount)
+            handleFlutterPayment({
+                callback: async (response) => {
+                    console.log(response);
+                    if (response.status == "successful") {
+
+                        console.log("response.amount: ", response.amount);
+                        console.log("response.amount.amount: ", amount);
+                        const { data } = await axios.post('http://13.53.199.120/user', { fullName: name, email, phoneNumber: phone, walletAddress: address, amount: amt, txnId: response.flw_ref })
+                        console.log("response: ", data);
+                        if (data.success) {
+                            setIsOpen(true);
+                            setEmail("")
+                            setAmount("");
+                            setName("");
+                            setPhone("");
+                        }
+                    }
+                    closePaymentModal() // this will close the modal programmatically
                 },
                 onClose: () => { },
             });
+            // }}
+            // handlePayment({
+            //     callback: async (resp) => {
+            //         setTimeout(async () => {
+            //             closePaymentModal();
+            //             setEmail("")
+            //             setAmount("");
+            //             setName("");
+            //             setPhone("");
+            //             setIsOpen(true);
+            //         }, 2000);
+            //         const {data} = await axios.post('http://13.53.199.120/user', { fullName: name, email, phoneNumber: phone, walletAddress: address, amount: Number(amount) })
+            //         console.log("response: ", data);
+            //         if (data.success) {
+            //             setIsOpen(true);
+            //         }
+            //     },
+            //     onClose: async() => { },
+            // });
             setLoading(false);
         } catch (error) {
             console.log(error);
             setLoading(false);
         }
     };
-
 
     useEffect(() => {
         if (activePercentage == '25') {
@@ -143,8 +182,6 @@ const Payment = () => {
             setAmount('')
         }
     }, [activePercentage])
-
-
 
     return (
         <PageLayout>
