@@ -6,14 +6,12 @@ import { toast } from "react-toastify";
 import { MULTISIG, USDT_ADDRESS } from '@/config';
 import Payment_Abi from "../utils/abi/Payment.json"
 import { ethers } from 'ethers';
-import { Button } from '@/components/core';
+import { Button, ConnectionButton } from '@/components/core';
 import { ScaleLoader } from 'react-spinners';
-import usePayment from '../hooks/usePayment'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/plain.css'
 import PaymentSuccessModal from '@/components/payment/PaymentSuccessModal';
 import axios from 'axios';
-import SuccessToastIcon from '@/icons/SuccessToastIcon';
 import WarningIcon from '@/icons/WarningIcon';
 import { closePaymentModal, useFlutterwave } from 'flutterwave-react-v3';
 
@@ -183,13 +181,46 @@ const Payment = () => {
         }
     }, [activePercentage])
 
+    const [userAmount, setUserAmount] = useState()
+
+
+    const fetchUserAmount = async () => {
+        try {
+            const { data } = await axios.get(`http://13.53.199.120/user/${address}`);
+            setUserAmount(data.amount);
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+
+    useEffect(() => {
+        fetchUserAmount()
+    }, [])
+
     return (
         <PageLayout>
             <PaymentSuccessModal
                 isOpen={isOpen}
                 togglePaymentSuccessModal={() => setIsOpen(!isOpen)}
             />
-            <div className="flex justify-center my-16 items-center h-[calc(100vh-6.6rem)]">
+            <div className="flex justify-center flex-col my-48 md:my-32 items-center h-[calc(100vh-6.6rem)]">
+
+                <div className="bg-[#FCE7F3] rounded-[12px] p-8 grid grid-cols-2 md:grid-cols-3 place-items-center sm:place-items-start gap-12 mb-12">
+
+                    <div className="col-span-1">
+                        <h1 className="text-[#18181B] font-medium text-xl">Your target</h1>
+                        <div className="text-[#70707B] font-semibold text-4xl mt-2">$1000</div>
+                    </div>
+                    <div className="col-span-1">
+                        <h1 className="text-[#18181B] font-medium text-xl">Tracked</h1>
+                        <div className="text-[#70707B] font-semibold text-4xl mt-2 text-center">{!address ? <ConnectionButton /> : userAmount ? `$${userAmount}` : '$0'}</div>
+                    </div>
+                    <div className="md:col-span-1 col-span-2 justify-center">
+                        <h1 className="text-[#18181B] font-medium text-xl">Remaining</h1>
+                        <div className="text-[#70707B] font-semibold text-4xl mt-2 text-center">{!address ? <ConnectionButton /> : userAmount ? `$${1000 - userAmount}` : '$0'}</div>
+                    </div>
+                </div>
                 <div className="border border-[#EF4444] text-[#3F3F46] w-[90%] md:max-w-[500px] mx-auto px-6 py-9 rounded-[8px]">
 
                     <div className="flex justify-center mb-6">
@@ -251,7 +282,7 @@ const Payment = () => {
                                 </div>
                             </div>
 
-                            <div className="rounded-md flex h-[46px] bg-[#FAFAFA] gap-x-4 p-1 mb-6">
+                            <div className="rounded-md grid grid-cols-2 sm:grid-cols-4 h-12 bg-[#FAFAFA] gap-4 p-1 mb-6">
                                 {
                                     ['25', '50', '75', '100'].map((am, _i) => (
                                         <PercentageTabButton
@@ -265,7 +296,7 @@ const Payment = () => {
                             </div>
 
 
-                            <div className="mb-[10px]">
+                            <div className="mb-[10px] pt-12 md:pt-0">
                                 <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Phone Number</h1>
                                 <div className="w-full">
                                     <PhoneInput
@@ -280,7 +311,6 @@ const Payment = () => {
                             <Button
                                 className={"bg-[#EF4444] text-white text-sm font-medium w-full h-11 mt-10 rounded-[8px]"}
                                 type="submit">
-                                {/* <ClipLoader size={28} color="#fff" /> */}
                                 {payInCryptoLoading || payInCryptoWaitLoading
                                     ? <ScaleLoader color='white' />
                                     : "Pay"}
@@ -334,7 +364,7 @@ const Payment = () => {
                                     </div>
                                 </div>
 
-                                <div className="rounded-md flex h-[46px] bg-[#FAFAFA] gap-x-4 p-1 mb-6">
+                                <div className="rounded-md grid grid-cols-2 sm:grid-cols-4 h-12 bg-[#FAFAFA] gap-4 p-1 mb-6">
                                     {
                                         ['25', '50', '75', '100'].map((am, _i) => (
                                             <PercentageTabButton
@@ -347,14 +377,12 @@ const Payment = () => {
                                     }
                                 </div>
 
-
-                                <div className="mb-[10px]">
+                                <div className="mb-[10px] pt-12 md:pt-0">
                                     <h1 className="text-[#3F3F46] text-[14px] leading-[20px] mb-[6px]">Enter Phobe Number</h1>
                                     <div className="w-full">
                                         <PhoneInput
                                             country={'ng'}
                                             value={phone}
-                                            // className=""
                                             onChange={phone => setPhone(phone)}
                                         />
                                     </div>
@@ -365,8 +393,6 @@ const Payment = () => {
                                     type="submit"
                                     disabled={loading}
                                 >
-                                    {/* <ClipLoader size={28} color="#fff" /> */}
-
                                     {loading
                                         ? <ScaleLoader color='white' />
                                         : "Proceed"}
@@ -417,18 +443,13 @@ const TabButton = ({
 
 
 const PercentageTabButton = (props: any) => {
-    console.log(props);
-
-
-
     const isActive = props.title?.toLowerCase() === props.activePercentage.toLowerCase();
 
-    // 
     return (
         <div
             // style={isActiveDiv(props?.title)}
             onClick={() => props?.setActivePercentage(props?.title)}
-            className={`cursor-pointer px-6 h-full flex justify-center items-center w-full transition-all delay-75 ease-in-out rounded-[12px] border ${isActive ? " bg-[#EF4444]" : "bg-[#F0F0F0] border-[#FCE7F3]"}`}
+            className={`cursor-pointer text-center px-6 py-2 w-full transition-all delay-75 ease-in-out rounded-[12px] border ${isActive ? " bg-[#EF4444]" : "bg-[#F0F0F0] border-[#FCE7F3]"}`}
 
         >
             <h1
