@@ -30,6 +30,8 @@ const Payment = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [activePercentage, setActivePercentage] = useState("100")
 
+    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 
     const {
         data: payInCryptoData,
@@ -53,7 +55,7 @@ const Payment = () => {
             async onSuccess(dt) {
                 console.log("response.dttt: ", dt);
 
-                const { data } = await axios.post('http://13.53.199.120/user', { fullName: name, email, phoneNumber: phone, walletAddress: address, amount: Number(amount), txnId: dt.transactionHash })
+                const { data } = await axios.post(`${BASE_URL}/user`, { fullName: name, email, phoneNumber: phone, walletAddress: address, amount: Number(amount), txnId: dt.transactionHash })
 
                 if (data.success) {
                     setIsOpen(true);
@@ -107,15 +109,15 @@ const Payment = () => {
 
     const handleFlutterPayment = useFlutterwave(config);
 
-    const handleFiatSubmit = (e: SyntheticEvent) => {
+    const handleFiatSubmit = async (e: SyntheticEvent) => {
         e.preventDefault();
 
-        if (!address) {
-            toast.error("Connect your wallet!", {
-                icon: <WarningIcon />,
-            });
-            return;
-        }
+        // if (!address) {
+        //     toast.error("Connect your wallet!", {
+        //         icon: <WarningIcon />,
+        //     });
+        //     return;
+        // }
 
         setLoading(true);
         try {
@@ -124,42 +126,42 @@ const Payment = () => {
                 callback: async (response) => {
                     console.log(response);
                     if (response.status == "successful") {
+                        // console.log("KILODE!!!");
+                        // const { data } = await axios.post(`${BASE_URL}/user`, { fullName: name, email, phoneNumber: phone, walletAddress: address, amount: amt, txnId: response.flw_ref })
+                        // console.log("response: ", data);
+                        // if (data.success) {
+                        //     setIsOpen(true);
+                        //     setEmail("")
+                        //     setAmount("");
+                        //     setName("");
+                        //     setPhone("");
+                        // }
 
-                        console.log("response.amount: ", response.amount);
-                        console.log("response.amount.amount: ", amount);
-                        const { data } = await axios.post('http://13.53.199.120/user', { fullName: name, email, phoneNumber: phone, walletAddress: address, amount: amt, txnId: response.flw_ref })
-                        console.log("response: ", data);
-                        if (data.success) {
-                            setIsOpen(true);
-                            setEmail("")
-                            setAmount("");
-                            setName("");
-                            setPhone("");
+                        if (!loading) {
+                            setLoading(true);
+                            const { data } = await axios.post(`${BASE_URL}/user`, {
+                                fullName: name,
+                                email,
+                                phoneNumber: phone,
+                                walletAddress: address,
+                                amount: amt,
+                                txnId: response.flw_ref,
+                            });
+                            console.log("response: ", data);
+                            if (data.success) {
+                                setIsOpen(true);
+                                setEmail("");
+                                setAmount("");
+                                setName("");
+                                setPhone("");
+                            }
+                            setLoading(false);
                         }
                     }
                     closePaymentModal() // this will close the modal programmatically
                 },
                 onClose: () => { },
             });
-            // }}
-            // handlePayment({
-            //     callback: async (resp) => {
-            //         setTimeout(async () => {
-            //             closePaymentModal();
-            //             setEmail("")
-            //             setAmount("");
-            //             setName("");
-            //             setPhone("");
-            //             setIsOpen(true);
-            //         }, 2000);
-            //         const {data} = await axios.post('http://13.53.199.120/user', { fullName: name, email, phoneNumber: phone, walletAddress: address, amount: Number(amount) })
-            //         console.log("response: ", data);
-            //         if (data.success) {
-            //             setIsOpen(true);
-            //         }
-            //     },
-            //     onClose: async() => { },
-            // });
             setLoading(false);
         } catch (error) {
             console.log(error);
@@ -185,12 +187,13 @@ const Payment = () => {
 
     const fetchUserAmount = async () => {
         try {
-            const { data } = await axios.get(`http://13.53.199.120/user/${address}`);
- 
-            const totalAmount = data.map((item: any) => item.amount).reduce((acc: any, curr: any) => acc + curr, 0);
+            const { data } = await axios.get(`${BASE_URL}/user/${address}`);
+            console.log("Total Amount:", data);
 
-            console.log("Total Amount:", totalAmount);
-            setUserAmount(totalAmount);
+            // const totalAmount = data.transactionId.map((item: any) => item.amount).reduce((acc: any, curr: any) => acc + curr, 0);
+
+            console.log("Total Amount:", data.amount);
+            setUserAmount(data.amount);
         } catch (error) {
             console.log(error);
         }
