@@ -183,14 +183,16 @@ const Payment = () => {
 
     const [userAmount, setUserAmount] = useState()
 
-
     const fetchUserAmount = async () => {
         try {
             const { data } = await axios.get(`http://13.53.199.120/user/${address}`);
-            setUserAmount(data.amount);
+ 
+            const totalAmount = data.map((item: any) => item.amount).reduce((acc: any, curr: any) => acc + curr, 0);
+
+            console.log("Total Amount:", totalAmount);
+            setUserAmount(totalAmount);
         } catch (error) {
             console.log(error);
-
         }
     }
 
