@@ -172,7 +172,7 @@ const Vote = () => {
 
     return (
         <PageLayout>
-            <div className="mt-14 md:mt-24 h-[calc(100vh-10rem)] max-w-[95%] lg:max-w-[65%] mx-auto">
+            <div className="my-16 md:my-24 min-h-[calc(100vh-10rem)] max-w-[95%] lg:max-w-[65%] mx-auto">
                 <div className="mx-5">
                     <h1 className="text-xl font-semibold text-[#3F3F46]">VOTE FOR PROPOSAL</h1>
                     {(approveLoading ||

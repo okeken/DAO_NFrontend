@@ -56,7 +56,7 @@ const CreateProposal = () => {
 
   return (
     <PageLayout>
-      <div className="mt-20 md:mt-24 h-[calc(100vh-12.6rem)] w-[90%] md:max-w-[500px] text-[#3F3F46] mx-auto">
+      <div className="my-16 md:my-24 min-h-[calc(100vh-12.6rem)] w-[90%] md:max-w-[500px] text-[#3F3F46] mx-auto">
         <div className="border border-[#EF4444] px-6 py-12 rounded-[8px] bg-white">
           <h2 className="uppercase text-xl font-semibold mb-4 text-[#18181B]">Create Proposal</h2>
 

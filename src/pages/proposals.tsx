@@ -83,7 +83,7 @@ export default function Certificate() {
 
   return (
     <PageLayout>
-      <div className="my-14 md:mt-24 h-[calc(100vh-10rem)] max-w-[95%] lg:max-w-[75%] xl:max-w-[65%] mx-auto">
+      <div className="my-16 md:my-24 min-h-[calc(100vh-10rem)] max-w-[95%] lg:max-w-[75%] xl:max-w-[65%] mx-auto">
         <h1 className="mx-3 text-xl font-semibold mb-3 text-[#3F3F46]">PROPOSAL{proposals && Object.keys(proposals).length > 1 ? "S" : ""}</h1>
         <ProposalTable
           proposals={proposals}

@@ -53,7 +53,7 @@ export default function Certificate() {
 
   return (
     <PageLayout>
-      <div className="flex justify-center items-center h-[calc(100vh-6.6rem)]">
+      <div className="flex justify-center items-center min-h-[calc(100vh-6.6rem)]">
 
         <div className="border border-[#EF4444] text-[#3F3F46] w-[90%] md:max-w-[500px] mx-auto px-6 py-9 rounded-[8px]">
           <h1 className="text-center text-xl font-semibold">Mint Certificate</h1>
