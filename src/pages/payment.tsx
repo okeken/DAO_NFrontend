@@ -205,7 +205,7 @@ const Payment = () => {
                 isOpen={isOpen}
                 togglePaymentSuccessModal={() => setIsOpen(!isOpen)}
             />
-            <div className="flex justify-center flex-col my-48 md:my-32 items-center h-[calc(100vh-6.6rem)]">
+            <div className="flex justify-center flex-col my-20 md:my-32 items-center min-h-[calc(100vh-6.6rem)]">
 
                 <div className="bg-[#FCE7F3] rounded-[12px] p-8 grid grid-cols-2 md:grid-cols-3 place-items-center sm:place-items-start gap-12 mb-12">
 
