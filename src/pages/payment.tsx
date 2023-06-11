@@ -188,11 +188,7 @@ const Payment = () => {
     const fetchUserAmount = async () => {
         try {
             const { data } = await axios.get(`${BASE_URL}/user/${address}`);
-            console.log("Total Amount:", data);
-
             // const totalAmount = data.transactionId.map((item: any) => item.amount).reduce((acc: any, curr: any) => acc + curr, 0);
-
-            console.log("Total Amount:", data.amount);
             setUserAmount(data.amount);
         } catch (error) {
             console.log(error);
